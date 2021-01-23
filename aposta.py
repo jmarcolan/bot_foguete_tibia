@@ -17,10 +17,14 @@ class estrategia_mock():
             self.montante_atualizado = self.montante_atualizado + (self.qnt_aposta * self.t_aposta)
         else:
             self.montante_atualizado  = self.montante_atualizado  - self.qnt_aposta
+       
         self.guarda_produtividade.append(self.montante_atualizado - self.montante_inicial)
+
+
     
     def atualiza_imagem_ganhos(self):
         plt.plot(self.guarda_produtividade, label=self.nome)
+        plt.show()
 
     def get_status_aposta(self):
         return self.r_faz_aposta
@@ -63,11 +67,15 @@ def estrategia_v1(x):
     r_dinheiro = categoria == "ganhando"
     r_ganancia = categoria == "ganancia"
 
-    if r_casa:
-        return 1.3 + np.random.uniform(0,3)*0.1
-    if  r_ganancia:
-        return 1.6 + np.random.uniform(0,4)*0.1
-    elif r_dinheiro:
-        return 0
+    r_deu_ruim = x <= 1.01
+    if r_deu_ruim:
+        return 0 
     else:
-        return 0
+        if r_casa:
+            return 1.3 + np.random.uniform(0,3)*0.1
+        if  r_ganancia:
+            return 1.6 + np.random.uniform(0,4)*0.1
+        elif r_dinheiro:
+            return 0
+        else:
+            return 0
