@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import soup as sg
+import db_sql as db
 
 import re
 import time 
@@ -110,7 +111,8 @@ def construindo_funcao_geradora_pega_ultimo(driver):
 
             if r_ultimo_valor_atualizo:
                 ultimo_valor_antigo = ultimo_valor
-                print("O ultimo valor pego e atualizado foi o do: ",ultimo_valor_antigo)
+                db.gravando_tempo(ultimo_valor_antigo)
+                print("O ultimo valor pego e atualizado foi o do: ", ultimo_valor_antigo)
                 
                 yield ultimo_valor_antigo
             else:
@@ -140,7 +142,11 @@ def construindo_funcao_geradora_pega_tabela(driver):
             if not r_pegou_1_vez:
                 r_pegou_1_vez = True
                 player_texto = get_tabela_player(driver)
-                print(sg.get_dados(player_texto))
+
+                dados_player = sg.get_dados(player_texto)
+                print(dados_player)
+                db.gravando_player(dados_player)
+                print(dados_player)
                 yield 0
 
         yield 0 
