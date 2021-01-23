@@ -39,7 +39,27 @@ def get_tabela_player(driver):
     
     return plyer_tabela
 
+def send_aposta(driver):
+    botao = driver.find_element_by_xpath('//*[@id="betValues"]/div/div/input')
+    botao.clear()
+    time.sleep(0.1)
+    botao.send_keys("1")
 
+def click_botao_aposta(driver):
+    botao_aposta = driver.find_element_by_xpath('//*[@id="betValues"]/div/div/span/button[5]')
+    botao_aposta.click(driver)
+
+def creat_aposta(driver):
+    send_aposta(driver)
+    time.sleep(1)
+    click_botao_aposta(driver)
+
+def retira_aposta(driver):
+    botao_aposta = driver.find_element_by_xpath('//*[@id="betValues"]/div/button')
+    botao_aposta.click()
+
+
+# def primeiro_jogo()
 
 
 PATH = "./chromedriver.exe"
@@ -112,7 +132,9 @@ def construindo_funcao_geradora_pega_ultimo(driver):
             if r_ultimo_valor_atualizo:
                 ultimo_valor_antigo = ultimo_valor
                 db.gravando_tempo(ultimo_valor_antigo)
+                print(10*"----")
                 print("O ultimo valor pego e atualizado foi o do: ", ultimo_valor_antigo)
+                # create aposta.
                 
                 yield ultimo_valor_antigo
             else:
@@ -144,12 +166,99 @@ def construindo_funcao_geradora_pega_tabela(driver):
                 player_texto = get_tabela_player(driver)
 
                 dados_player = sg.get_dados(player_texto)
-                print(dados_player)
+                # print(dados_player)
                 db.gravando_player(dados_player)
                 print(dados_player)
+                print(10*"*--*")
                 yield 0
 
         yield 0 
+
+
+import aposta as ap
+
+def construindo_apostador(driver):
+
+    e1 = ap.estrategia_mock(60, ap.estrategia_v1, "estrategia_v1")
+    
+    def faz_aposta(driver, apostador, ultimo_crash):
+        print("O ultimo valor pego e atualizado foi o do: ", ultimo_valor_antigo)
+        r_fez_aposta = apostador.faz_aposta(ultimo_crash,0)
+        if r_fez_aposta:
+            print("clicou para fazer as apostas")
+
+        return apostador
+
+    def monitora_fim_partida(driver, apostador):
+        # r_not_crash = True
+        status_game = get_status_game(driver)
+        r_inicio_partida = r_determina_inicio_game(status_game)
+        r_not_crash = not r_determina_fim_game(status_game)
+        print(r_not_crash)
+
+        r_existe_aposta = apostador.get_status_aposta()
+        if r_existe_aposta:
+            while r_not_crash:
+                r_not_crash = not r_determina_fim_game(status_game)
+
+                time.sleep(0.2)
+                status_game = get_status_game(driver)
+                r_inicio_partida = r_determina_inicio_game(status_game)
+                if not r_inicio_partida:
+                    status_game = get_status_game(driver)
+                    get_timer = get_timer_texto(status_game)
+                    print(f"O tempo {get_timer} da partida em {r_not_crash}")
+                    # print(type(get_timer))
+                    # print(get_timer)
+                    valor_atual = float(get_timer)
+                    # print(valor_atual)
+
+                    # valor_atual = float(get_timer)
+                    r_clicar = apostador.cliclar_bota(valor_atual)
+                    if r_clicar:
+                        print("clicou")
+                        r_not_crash = False
+
+            
+            
+    ultimo_valor_antigo = ""
+    while True:        
+        # print(ultimo_valor_antigo)
+        ultimo_crash = get_ultimo_crash(driver)
+        r_ultimo_crash_existe = ultimo_crash != None
+
+        if(r_ultimo_crash_existe):
+            ultimo_valor = get_timer_texto(ultimo_crash)
+            r_ultimo_valor_atualizo = ultimo_valor_antigo != ultimo_valor
+
+            if r_ultimo_valor_atualizo:
+                ultimo_valor_antigo = ultimo_valor
+                # db.gravando_tempo(ultimo_valor_antigo)
+                # print(10*"----")
+                # print("O ultimo valor pego e atualizado foi o do: ", ultimo_valor_antigo)
+                e1 = faz_aposta(driver, e1, ultimo_valor_antigo)
+                monitora_fim_partida(driver, e1)
+
+                
+                yield ultimo_valor_antigo
+            else:
+                yield ultimo_valor_antigo
+        else:
+            yield ultimo_valor_antigo
+
+
+
+def apostando(driver):
+
+    pega_valor_1_vez_lal = construindo_apostador(driver)
+
+    for i in range(100):
+        time.sleep(0.1)
+        next(pega_valor_1_vez_lal)
+
+
+    # estrategia()
+    
 
 
 
@@ -159,10 +268,12 @@ def roda_por_1_minuto(driver):
     pega_valor_1_vez_lal = construindo_funcao_geradora_pega_ultimo(driver)
     pega_tabela = construindo_funcao_geradora_pega_tabela(driver)
 
-    for i in range(200):
-        time.sleep(0.3)
+    # for i in range(1000):
+    while True:
+        time.sleep(0.1)
         next(pega_valor_1_vez_lal)
         next(pega_tabela)
+        
 
         # ultimo_valor_antigo = pega_ultimo_valor_apenas_1_vez(driver, ultimo_valor_antigo)
         # print(ultimo_valor_antigo)
