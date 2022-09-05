@@ -45,19 +45,22 @@ def get_tabela_player(driver):
 
 
 # FUNCOES PARA ENVIAR OS COMANDOS PARA A TELA
-def send_aposta(driver):
+def send_aposta(driver, qnt="1"):
     botao = driver.find_element_by_xpath('//*[@id="betValues"]/div/div/input')
     botao.clear()
-    time.sleep(0.1)
-    botao.send_keys("1")
+    time.sleep(0.3)
+    botao.send_keys(qnt)
+    time.sleep(0.2)
+
+
 
 def click_botao_aposta(driver):
     botao_aposta = driver.find_element_by_xpath('//*[@id="betValues"]/div/div/span/button[5]')
     botao_aposta.click()
 
-def creat_aposta(driver):
-    send_aposta(driver)
-    time.sleep(1+ np.random.uniform(0,3)*0.1)
+def creat_aposta(driver, qnt="1"):
+    send_aposta(driver, qnt)
+    time.sleep( 0.8 + np.random.uniform(0,3)*0.1)
     click_botao_aposta(driver)
 
 def retira_aposta(driver):
@@ -179,7 +182,7 @@ import aposta as ap
 
 def construindo_apostador(driver):
 
-    e1 = ap.estrategia_mock(60, ap.estrategia_v1, "estrategia_v1", qnt_aposta=1)
+    e1 = ap.estrategia_mock(50, ap.estrategia_v1, "estrategia_v1", qnt_aposta=1)
     
     def faz_aposta(driver, apostador, ultimo_crash):
         print("O ultimo valor pego e atualizado foi o do: ", ultimo_valor_antigo)
@@ -187,7 +190,7 @@ def construindo_apostador(driver):
         if r_fez_aposta:
             print("clicou para fazer as apostas")
             # BOOT CLICANDO VIVO
-            creat_aposta(driver)
+            # creat_aposta(driver)
 
         return apostador
 
@@ -217,14 +220,14 @@ def construindo_apostador(driver):
                         if r_clicar:
                             print("clicou e ganhou")
                             # BOOT CLICANDO VIVO
-                            retira_aposta(driver)
-                            apostador.atualiza_imagem_ganhos()
+                            # retira_aposta(driver)
+                            # apostador.atualiza_imagem_ganhos()
 
-                            r_not_crash = False
+                            # r_not_crash = False
                         
                         if not r_not_crash and not r_clicar:
                             apostador.atualiza_montante(valor_atual)
-                            apostador.atualiza_imagem_ganhos()
+                            # apostador.atualiza_imagem_ganhos()
                             print("perdeu")
                     except:
                         print("An exception occurred")

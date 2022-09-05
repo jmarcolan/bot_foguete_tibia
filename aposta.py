@@ -35,6 +35,7 @@ class estrategia_mock():
         self.t_aposta = self.estrategia(valor_tempo_passado)
         self.r_faz_aposta = self.t_aposta >= 1 
         if self.r_faz_aposta:
+            self.montante_atualizado = self.montante_atualizado - self.qnt_aposta
             print(f"A {self.nome}, apostou o valor de **{self.t_aposta}x**, tem um montante de {self.montante_atualizado}TC na i:{i}; t ultima {valor_tempo_passado}x")
         else:
             print("não fez aposta nessa rodada")
